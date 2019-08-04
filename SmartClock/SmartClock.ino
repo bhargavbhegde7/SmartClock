@@ -70,6 +70,23 @@ void printCurrentTime() {
   refreshDisplay();
   pacificTime.printTo(display);
   display.println();
+  printVolts();
+  display.display();
+}
+
+void printVolts()
+{
+  int sensorValue = analogRead(A0); //read the A0 pin value
+  //float voltage = sensorValue * (5.00 / 1023.00) * 2; //convert the value to a true voltage.
+  //int voltage = (sensorValue/1023) * 100;
+  
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(10, 40);
+  
+  display.print("voltage = ");
+  display.print(sensorValue); //print the voltage to LCD
+  display.print(" V");
   display.display();
 }
 
