@@ -76,6 +76,7 @@ void loop() {
   // turns on the LED every four button pushes by checking the modulo of the
   // button push counter. the modulo function gives you the remainder of the
   // division of two numbers:
+  /*
   if (buttonPushCounter % 4 == 0) {
     //digitalWrite(ledPin, HIGH);
     //display.println("HIGH");
@@ -83,6 +84,7 @@ void loop() {
     //digitalWrite(ledPin, LOW);
     //display.println("LOW");
   }
+  */
 //--------------------------------------------------------------------------------------------
 
   display.println(buttonPushCounter);
