@@ -1,8 +1,3 @@
-/*********
-  Rui Santos
-  Complete project details at https://randomnerdtutorials.com  
-*********/
-
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
@@ -13,31 +8,50 @@
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
-// this constant won't change:
-const int  buttonPin = D8;    // the pin that the pushbutton is attached to
+//Declaring all the output pins
+const int soundPin      = D0;
+const int displayVccPin    = D2;
+const int displayGroundPin = D1;
+const int displaySDA       = D4;
+const int displaySLC       = D3;
 
-// Variables will change:
+//Declaring all the input pins
+const int upButton     = D5;
+const int downButton   = D6;
+const int okButton     = D7;
+const int optionButton = D8;
+
 int buttonPushCounter = 0;   // counter for the number of button presses
 int buttonState = 0;         // current state of the button
 int lastButtonState = 0;     // previous state of the button
 
+
+
 void setup() {
   Serial.begin(115200);
 
-  pinMode(D1, OUTPUT);
-  digitalWrite (D1, LOW);
-  pinMode(D2, OUTPUT);
-  digitalWrite (D2, HIGH);
+  //setup all the input and output modes
+  pinMode(soundPin, OUTPUT);
+  pinMode(displayGroundPin, OUTPUT);
+  pinMode(displayVccPin, OUTPUT);
+  
+  pinMode(upButton, INPUT);
+  pinMode(downButton, INPUT);
+  pinMode(okButton, INPUT);
+  pinMode(optionButton, INPUT);
 
-  // initialize the button pin as a input:
-  pinMode(buttonPin, INPUT);
+  digitalWrite (displayGroundPin, LOW);
+  digitalWrite (displayVccPin, HIGH);
 
-  Wire.begin(D4,D3);//sda_pin 4 ,scl_pin 3
+  Wire.begin(displaySDA,displaySLC);//sda_pin 4 ,scl_pin 3
 
   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3D for 128x64
     Serial.println(F("SSD1306 allocation failed"));
     for(;;);
   }
+
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
   delay(2000);
    
 }
@@ -45,13 +59,12 @@ void setup() {
 void loop() {
   display.clearDisplay();
 
-  display.setTextSize(1);
-  display.setTextColor(WHITE);
+  
   display.setCursor(0, 10);
 
 //--------------------------------------------------------------------------------------------
 // read the pushbutton input pin:
-  buttonState = digitalRead(buttonPin);
+  buttonState = digitalRead(upButton);
 
   // compare the buttonState to its previous state
   if (buttonState != lastButtonState) {
@@ -72,19 +85,11 @@ void loop() {
   // save the current state as the last state, for next time through the loop
   lastButtonState = buttonState;
 
-
-  // turns on the LED every four button pushes by checking the modulo of the
-  // button push counter. the modulo function gives you the remainder of the
-  // division of two numbers:
-  /*
-  if (buttonPushCounter % 4 == 0) {
-    //digitalWrite(ledPin, HIGH);
-    //display.println("HIGH");
-  } else {
-    //digitalWrite(ledPin, LOW);
-    //display.println("LOW");
+  if(buttonPushCounter % 10 == 0){
+    digitalWrite (soundPin, HIGH);
+  }else{
+    digitalWrite (soundPin, LOW);
   }
-  */
 //--------------------------------------------------------------------------------------------
 
   display.println(buttonPushCounter);
