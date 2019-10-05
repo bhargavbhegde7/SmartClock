@@ -14,7 +14,7 @@
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 // this constant won't change:
-const int  buttonPin = D7;    // the pin that the pushbutton is attached to
+const int  buttonPin = D8;    // the pin that the pushbutton is attached to
 
 // Variables will change:
 int buttonPushCounter = 0;   // counter for the number of button presses
