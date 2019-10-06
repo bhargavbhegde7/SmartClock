@@ -23,10 +23,10 @@ const int optionButton = D8;
 
 //mode constants
 const int TOTAL_NUM_OF_MODES = 4;
-const int VIEW_TIME  = 1;
-const int EDIT_TIME  = 2;
-const int VIEW_ALARM = 3;
-const int EDIT_ALARM = 4;
+const int VIEW_TIME  = 0;
+const int EDIT_TIME  = 1;
+const int VIEW_ALARM = 2;
+const int EDIT_ALARM = 3;
 
 int upBtnCurState  = 0;
 int upBtnPrevState = 0;
@@ -36,6 +36,9 @@ int downBtnPrevState = 0;
 
 int optionBtnCurState  = 0;
 int optionBtnPrevState = 0;
+
+int okBtnCurState  = 0;
+int okBtnPrevState = 0;
 
 int currentMode = VIEW_TIME;
 
@@ -86,8 +89,11 @@ void setup() {
 void loop() {
 /*------------------------------ <handle button inputs> ----------------------------------------*/
 
-/*------------------------------ <option button> ----------------------------------------*/
-//no matter what the current mode is, always change mode when the option is pressed.
+/*------------------------------- <VIEW_TIME mode> --------------------------*/
+if(currentMode == VIEW_TIME){
+  toBlink = false;
+    /*------------------------------ <option button> ----------------------------------------*/
+  //if option is pressed while in edit mode, switch the blink between minutes, hours, etc
 // read the pushbutton input pin:
   optionBtnCurState = digitalRead(optionButton);
 
@@ -104,15 +110,47 @@ void loop() {
   // save the current state as the last state, for next time through the loop
   optionBtnPrevState = optionBtnCurState;
 /*------------------------------ </option button> ----------------------------------------*/
-
-/*------------------------------- <VIEW_TIME mode> --------------------------*/
-if(currentMode == VIEW_TIME){
-  toBlink = false;
 }
 /*------------------------------- </VIEW_TIME mode> --------------------------*/
 /*------------------------------- <EDIT_TIME mode> --------------------------*/
 if(currentMode == EDIT_TIME){
   toBlink = true;
+  /*------------------------------ <option button> ----------------------------------------*/
+  //if option is pressed while in edit mode, switch the blink between minutes, hours, etc
+// read the pushbutton input pin:
+  optionBtnCurState = digitalRead(optionButton);
+
+  // compare the buttonState to its previous state
+  if (optionBtnCurState != optionBtnPrevState) {
+    // if the state has changed, increment the counter
+    if (optionBtnCurState == LOW){
+      // if the current state is LOW then the button went from on to off:
+      //currentMode = (currentMode+1)%TOTAL_NUM_OF_MODES;
+    }
+    // Delay a little bit to avoid bouncing
+    delay(50);
+  }
+  // save the current state as the last state, for next time through the loop
+  optionBtnPrevState = optionBtnCurState;
+/*------------------------------ </option button> ----------------------------------------*/
+  /*------------------------------ <ok button> ----------------------------------------*/
+  //if ok is pressed while in edit mode, switch to the view mode
+// read the pushbutton input pin:
+  okBtnCurState = digitalRead(okButton);
+
+  // compare the buttonState to its previous state
+  if (okBtnCurState != okBtnPrevState) {
+    // if the state has changed, increment the counter
+    if (okBtnCurState == LOW){
+      // if the current state is LOW then the button went from on to off:
+      currentMode = VIEW_TIME;
+    }
+    // Delay a little bit to avoid bouncing
+    delay(50);
+  }
+  // save the current state as the last state, for next time through the loop
+  okBtnPrevState = okBtnCurState;
+/*------------------------------ </ok button> ----------------------------------------*/
 /*------------------------------ <up button> ----------------------------------------*/
 // read the pushbutton input pin:
   upBtnCurState = digitalRead(upButton);
@@ -149,18 +187,68 @@ if(currentMode == EDIT_TIME){
 /*------------------------------ </down button> ----------------------------------------*/
 }
 /*------------------------------- </EDIT_TIME mode> --------------------------*/
+/*------------------------------- <VIEW_ALARM mode> --------------------------*/
+if(currentMode == VIEW_ALARM){
+  toBlink = false;
+    /*------------------------------ <option button> ----------------------------------------*/
+  //if option is pressed while in edit mode, switch the blink between minutes, hours, etc
+// read the pushbutton input pin:
+  optionBtnCurState = digitalRead(optionButton);
+
+  // compare the buttonState to its previous state
+  if (optionBtnCurState != optionBtnPrevState) {
+    // if the state has changed, increment the counter
+    if (optionBtnCurState == LOW){
+      // if the current state is LOW then the button went from on to off:
+      currentMode = (currentMode+1)%TOTAL_NUM_OF_MODES;
+    }
+    // Delay a little bit to avoid bouncing
+    delay(50);
+  }
+  // save the current state as the last state, for next time through the loop
+  optionBtnPrevState = optionBtnCurState;
+/*------------------------------ </option button> ----------------------------------------*/
+}
+/*------------------------------- </VIEW_ALARM mode> --------------------------*/
+/*------------------------------- <EDIT_ALARM mode> --------------------------*/
+if(currentMode == EDIT_ALARM){
+  toBlink = false;
+    /*------------------------------ <option button> ----------------------------------------*/
+  //if option is pressed while in edit mode, switch the blink between minutes, hours, etc
+// read the pushbutton input pin:
+  optionBtnCurState = digitalRead(optionButton);
+
+  // compare the buttonState to its previous state
+  if (optionBtnCurState != optionBtnPrevState) {
+    // if the state has changed, increment the counter
+    if (optionBtnCurState == LOW){
+      // if the current state is LOW then the button went from on to off:
+      currentMode = (currentMode+1)%TOTAL_NUM_OF_MODES;
+    }
+    // Delay a little bit to avoid bouncing
+    delay(50);
+  }
+  // save the current state as the last state, for next time through the loop
+  optionBtnPrevState = optionBtnCurState;
+/*------------------------------ </option button> ----------------------------------------*/
+}
+/*------------------------------- </EDIT_ALARM mode> --------------------------*/
 /*------------------------------ </handle button inputs> ----------------------------------------*/
 
   display.clearDisplay();
   
   display.setCursor(0, 0);
-  display.print(currentMode == EDIT_TIME ? "EDIT" : "VIEW");
+  //display.print(currentMode == EDIT_TIME ? "EDIT" : "VIEW");
+  display.print("MODE : ");
+  display.print(currentMode);
+  display.print("\n");
   
   display.setCursor(0, 20);
 //  if(toBlink == true && blinkDelay % 100 == 0){
 //    
-//    toBlink = !toBlink;   
+//    toBlink = !toBlink;
 //  }
+
 
   if(toBlink == false){
     display.print(generalCounter);
@@ -170,24 +258,6 @@ if(currentMode == EDIT_TIME){
     }
   }
 
-  
-
   blinkDelay = (blinkDelay+1)%BLINK_DELAY_MAX;
   display.display();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
