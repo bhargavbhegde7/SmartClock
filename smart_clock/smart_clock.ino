@@ -1,4 +1,5 @@
 #include <Wire.h>
+#include "RTClib.h"
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
@@ -7,6 +8,10 @@
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+
+RTC_DS3231 rtc;
+ 
+char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
 //Declaring all the output pins
 const int soundPin         = D0;
@@ -77,18 +82,41 @@ void setupDisplayConfig(){
   display.setTextColor(WHITE);
 }
 
+void setupRTC(){
+  if (! rtc.begin()) {
+    Serial.println("Couldn't find RTC");
+    while (1);
+  }
+ 
+  if (rtc.lostPower()) {
+    Serial.println("RTC lost power, lets set the time!");
+    // following line sets the RTC to the date & time this sketch was compiled
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    // This line sets the RTC with an explicit date & time, for example to set
+    // January 21, 2014 at 3am you would call:
+    // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
+  }
+}
+
 void setup() {
   Serial.begin(115200);
 
   setupPinModes();
   setupDisplayConfig();
+  setupRTC();
   
   delay(2000);
 }
 
 void loop() {
-/*------------------------------ <handle button inputs> ----------------------------------------*/
-
+/*------------------------------ <handle different modes> ----------------------------------------*/
+//display the mode in the top always
+display.clearDisplay();
+  
+display.setCursor(0, 0);
+display.print("MODE : ");
+display.print(currentMode);
+display.print("\n");
 /*------------------------------- <VIEW_TIME mode> --------------------------*/
 if(currentMode == VIEW_TIME){
   toBlink = false;
@@ -110,6 +138,25 @@ if(currentMode == VIEW_TIME){
   // save the current state as the last state, for next time through the loop
   optionBtnPrevState = optionBtnCurState;
 /*------------------------------ </option button> ----------------------------------------*/
+  DateTime now = rtc.now();
+  display.setCursor(0, 10);
+  display.print(now.year(), DEC);
+  display.print('/');
+  display.print(now.month(), DEC);
+  display.print('/');
+  display.print(now.day(), DEC);
+  display.print(" (");
+  display.print(daysOfTheWeek[now.dayOfTheWeek()]);
+  display.print(") ");
+  display.print(now.hour(), DEC);
+  display.print(':');
+  display.print(now.minute(), DEC);
+  display.print(':');
+  display.print(now.second(), DEC);
+  display.println();
+/*------------------------------- <display current time>----------------------------------*/
+
+/*------------------------------- </display current time>----------------------------------*/
 }
 /*------------------------------- </VIEW_TIME mode> --------------------------*/
 /*------------------------------- <EDIT_TIME mode> --------------------------*/
@@ -233,23 +280,17 @@ if(currentMode == EDIT_ALARM){
 /*------------------------------ </option button> ----------------------------------------*/
 }
 /*------------------------------- </EDIT_ALARM mode> --------------------------*/
-/*------------------------------ </handle button inputs> ----------------------------------------*/
+/*------------------------------ </handle different modes> ----------------------------------------*/
 
-  display.clearDisplay();
   
-  display.setCursor(0, 0);
-  //display.print(currentMode == EDIT_TIME ? "EDIT" : "VIEW");
-  display.print("MODE : ");
-  display.print(currentMode);
-  display.print("\n");
   
-  display.setCursor(0, 20);
+  //display.setCursor(0, 20);
 //  if(toBlink == true && blinkDelay % 100 == 0){
 //    
 //    toBlink = !toBlink;
 //  }
 
-
+/*
   if(toBlink == false){
     display.print(generalCounter);
   }else{
@@ -257,7 +298,8 @@ if(currentMode == EDIT_ALARM){
       display.print(generalCounter);
     }
   }
+*/
 
-  blinkDelay = (blinkDelay+1)%BLINK_DELAY_MAX;
+  //blinkDelay = (blinkDelay+1)%BLINK_DELAY_MAX;
   display.display();
 }
